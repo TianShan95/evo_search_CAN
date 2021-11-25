@@ -63,16 +63,16 @@ if __name__ == '__main__':
                 b_x = Variable(b_x).to(DEVICE)
                 b_y = Variable(torch.squeeze(b_y)).to(DEVICE)
 
-                print("====================")
-                print('b_x.is_cuda: ', b_x.is_cuda)
-                print('b_y.is_cuda: ', b_y.is_cuda)
+                # print("====================")
+                # print('b_x.is_cuda: ', b_x.is_cuda)
+                # print('b_y.is_cuda: ', b_y.is_cuda)
 
                 output = net(b_x).to(DEVICE)  # net 在训练 batch 上的输出
-                print('output.is_cude: ', output.is_cuda)
+                # print('output.is_cude: ', output.is_cuda)
                 # output = torch.squeeze(output)
 
                 # print('step: ', step)
-                print('b_y: ', b_y)
+                # print('b_y: ', b_y)
                 # print('type(b_x): ', type(b_x))
                 # print('b_x.shape: ', b_x.shape)
                 # print('----------------------')
@@ -98,7 +98,8 @@ if __name__ == '__main__':
                     _, pre_lab = torch.max(output, 1)
                     # print('pre_lab: ', pre_lab)
                     pre_lab = pre_lab.cpu()
-                    valid_accuracy = accuracy_score(MyData.y_valid_data, pre_lab)
+                    y_valid = torch.squeeze(MyData.y_valid_data)
+                    valid_accuracy = accuracy_score(y_valid, pre_lab)
                     # 为 history 添加 epoch 损失和精度
                     history1.log(niter, train_loss=train_loss, valid_accuracy=valid_accuracy)
                     # 使用两个突袭那个可视化损失函数和精度

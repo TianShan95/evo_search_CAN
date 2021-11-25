@@ -391,5 +391,5 @@ class StrNN(nn.Module):
         # out = torch.max(out, dim=1)[1].data
         # out = out[0].data
         # out = torch.unsqueeze(out, dim=1).float()
-        print('out', out)
+        # print('out', out)
         return out

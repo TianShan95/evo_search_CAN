@@ -6,6 +6,7 @@ import torch
 import torch.nn as nn
 import data
 from sklearn.metrics import accuracy_score
+from torch.autograd import Variable
 
 if __name__ == '__main__':
     p0_list = init_p0.init_p(1)  # 初始种群有 K 个个体
@@ -52,9 +53,12 @@ if __name__ == '__main__':
                 # 计算每个batch的损失
                 # print(b_x)
                 net.train()  # 训练模式
+                b_x = Variable(b_x)
+                b_y = Variable(torch.squeeze(b_y))
+
                 output = net(b_x)  # net 在训练 batch 上的输出
                 # output = torch.squeeze(output)
-                b_y = torch.squeeze(b_y)
+
                 # print('step: ', step)
                 # print('b_y: ', b_y)
                 # print('type(b_x): ', type(b_x))

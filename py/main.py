@@ -29,7 +29,7 @@ if __name__ == '__main__':
 
         #  打印进化好的网络 基因序列
         print('网络基因序列_%d' % index, population_list[index])
-        print(net)
+        # print(net)
 
         #  画图出基因的网络结构
         hl_graph = hl.build_graph(net, torch.zeros([1, 1, 29, 29]))
@@ -38,7 +38,7 @@ if __name__ == '__main__':
 
         # 设置网络超参数
         optimizer = torch.optim.Adam(net.parameters(), lr=0.001)
-        loss_func = nn.CrossEntropyLoss()  # 二分类损失函数
+        loss_func = nn.CrossEntropyLoss().to(DEVICE)  # 二分类损失函数
         #  记录训练过程指标
         history1 = hl.History()
         #  使用Canvas进行可视化
@@ -55,17 +55,17 @@ if __name__ == '__main__':
                 output = net(b_x)  # net 在训练 batch 上的输出
                 # output = torch.squeeze(output)
                 b_y = torch.squeeze(b_y)
-                print('step: ', step)
-                print('b_y: ', b_y)
-                print('type(b_x): ', type(b_x))
-                print('b_x.shape: ', b_x.shape)
-                print('----------------------')
-                print('type(b_y): ', type(b_y))
-                print('b_y.shape: ', b_y.shape)
-                print('=======================')
-                print('type(output): ', type(output))
-                print('output.shape: ', output.shape)
-                print('=-=-=-=-=-=-=-=-=-=-=-=')
+                # print('step: ', step)
+                # print('b_y: ', b_y)
+                # print('type(b_x): ', type(b_x))
+                # print('b_x.shape: ', b_x.shape)
+                # print('----------------------')
+                # print('type(b_y): ', type(b_y))
+                # print('b_y.shape: ', b_y.shape)
+                # print('=======================')
+                # print('type(output): ', type(output))
+                # print('output.shape: ', output.shape)
+                # print('=-=-=-=-=-=-=-=-=-=-=-=')
 
                 train_loss = loss_func(output, b_y)  # 二分类交叉熵损失函数
                 optimizer.zero_grad()  # 每个迭代步的梯度初始化为 0
@@ -76,11 +76,11 @@ if __name__ == '__main__':
                 # 计算每经过 print_step 次迭代后的输出
                 if niter % print_step == 0:
                     print("= = = = = = = = = = =")
-                    print('MyData.x_valid_data.shape: ', MyData.x_valid_data.shape)
+                    # print('MyData.x_valid_data.shape: ', MyData.x_valid_data.shape)
                     net.eval()
                     output = net(MyData.x_valid_data)
                     _, pre_lab = torch.max(output, 1)
-                    print('pre_lab: ', pre_lab)
+                    # print('pre_lab: ', pre_lab)
                     valid_accuracy = accuracy_score(MyData.y_valid_data, pre_lab)
                     # 为 history 添加 epoch 损失和精度
                     history1.log(niter, train_loss=train_loss, valid_accuracy=valid_accuracy)
@@ -89,4 +89,4 @@ if __name__ == '__main__':
                         canvas1.draw_plot(history1["train_loss"])
                         canvas1.draw_plot(history1["valid_accuracy"])
 
-                    print("Epoch {:03d}: Loss {:.4f}, TrainAcc {:.4}".format(epoch, train_loss.item(), valid_accuracy))
+                    print("Epoch {:03d}: step {:07d}, Loss {:.4f}, TrainAcc {:.4}".format(epoch, step, train_loss.item(), valid_accuracy))

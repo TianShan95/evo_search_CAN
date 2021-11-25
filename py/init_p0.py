@@ -33,9 +33,9 @@ def init_p(K):
                 block_list.append(random.randint(rand_min, rand_min + gene_type_index - 1))
             individual_list.append(copy.deepcopy(block_list))
             block_list.clear()
-        print(individual_list)
+        # print(individual_list)
         population_list.append(copy.deepcopy(individual_list))
-        print(population_list)
+        # print(population_list)
         individual_list.clear()
 
     for i in population_list:  # 给种群种每个个体添加 redB

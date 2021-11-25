@@ -7,6 +7,7 @@ import torch.nn as nn
 import data
 from sklearn.metrics import accuracy_score
 from torch.autograd import Variable
+import time
 
 if __name__ == '__main__':
     p0_list = init_p0.init_p(1)  # 初始种群有 K 个个体
@@ -21,7 +22,7 @@ if __name__ == '__main__':
         individual_list.clear()
 
     print(population_list)
-
+    data.printA()
     MyData = data.MyData()
     for index, value in enumerate(population_list):
         # 根据基因 生成 网络
@@ -46,26 +47,32 @@ if __name__ == '__main__':
         canvas1 = hl.Canvas()
         print_step = 25
         # 对训练模型进行迭代训练，对所有的数据训练 epoch 轮
-        net = structure_net2.StrNN(value).to(DEVICE)
+
+        # 创建日志文件
+        file = open('evo_search_log.txt', "w+")
+        file.write(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) + '\n')
+        file.write(str((population_list[index])) + '\n')
+
+        net = net.to(DEVICE)  # 送入cuda
         for epoch in range(15):
             # 对训练数据的加载器进行迭代计算
             for step, (b_x, b_y) in enumerate(MyData.train_loader):
                 # 计算每个batch的损失
                 # print(b_x)
-                # print("====================")
-
                 net.train()  # 训练模式
                 b_x = Variable(b_x).to(DEVICE)
                 b_y = Variable(torch.squeeze(b_y)).to(DEVICE)
-                # print('b_x.is_cuda: ', b_x.is_cuda)
-                # print('b_y.is_cuda: ', b_y.is_cuda)
+
+                print("====================")
+                print('b_x.is_cuda: ', b_x.is_cuda)
+                print('b_y.is_cuda: ', b_y.is_cuda)
 
                 output = net(b_x).to(DEVICE)  # net 在训练 batch 上的输出
-                # print('output.is_cude: ', output.is_cuda)
+                print('output.is_cude: ', output.is_cuda)
                 # output = torch.squeeze(output)
 
                 # print('step: ', step)
-                # print('b_y: ', b_y)
+                print('b_y: ', b_y)
                 # print('type(b_x): ', type(b_x))
                 # print('b_x.shape: ', b_x.shape)
                 # print('----------------------')
@@ -81,25 +88,25 @@ if __name__ == '__main__':
                 train_loss.backward()  # 损失的后向传播，计算梯度
                 optimizer.step()  # 使用梯度进行优化
 
-                niter = epoch * len(MyData.train_loader) + step + 1
+                niter = epoch*len(MyData.train_loader)+step+1
                 # 计算每经过 print_step 次迭代后的输出
                 if niter % print_step == 0:
                     print("= = = = = = = = = = =")
                     # print('MyData.x_valid_data.shape: ', MyData.x_valid_data.shape)
                     net.eval()
-                    valid_x = Variable(MyData.x_valid_data).to(DEVICE)
-                    valid_y = Variable(MyData.y_valid_data)
-                    output = net(valid_x).to(DEVICE)
+                    output = net(MyData.x_valid_data)
                     _, pre_lab = torch.max(output, 1)
                     # print('pre_lab: ', pre_lab)
                     pre_lab = pre_lab.cpu()
-                    valid_accuracy = accuracy_score(valid_y, pre_lab)
+                    valid_accuracy = accuracy_score(MyData.y_valid_data, pre_lab)
                     # 为 history 添加 epoch 损失和精度
                     history1.log(niter, train_loss=train_loss, valid_accuracy=valid_accuracy)
                     # 使用两个突袭那个可视化损失函数和精度
                     with canvas1:
                         canvas1.draw_plot(history1["train_loss"])
                         canvas1.draw_plot(history1["valid_accuracy"])
+                    log = "Epoch {:03d}: step {:07d}, Loss {:.4f}, TrainAcc {:.4}".format(epoch, step, train_loss.item(), valid_accuracy)
+                    print(log)
+                    file.write(log + '\n')
 
-                    print("Epoch {:03d}: step {:07d}, Loss {:.4f}, TrainAcc {:.4}".format(epoch, step, train_loss.item(),
-                                                                                        valid_accuracy))
+        file.close()
